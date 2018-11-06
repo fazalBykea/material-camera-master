@@ -24,12 +24,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialcamera.MaterialCamera;
 import com.afollestad.materialcamera.R;
 import com.afollestad.materialcamera.util.CameraUtil;
 import com.afollestad.materialcamera.util.Degrees;
+import com.afollestad.materialcamera.util.ImageUtil;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -47,6 +49,8 @@ import static com.afollestad.materialcamera.internal.BaseCaptureActivity.FLASH_M
 abstract class BaseCameraFragment extends Fragment implements CameraUriInterface, View.OnClickListener, View.OnLongClickListener, View.OnTouchListener {
 
     protected ImageButton mButtonVideo;
+    protected LinearLayout galleryLayout;
+    protected ImageButton gallery;
     protected ImageButton mButtonStillshot;
     protected ImageButton mButtonFacing;
     protected ImageButton mButtonFlash;
@@ -112,10 +116,12 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
 
         mDelayStartCountdown = (TextView) view.findViewById(R.id.delayStartCountdown);
         mButtonVideo = (ImageButton) view.findViewById(R.id.video);
+        galleryLayout = view.findViewById(R.id.linear);
         mButtonStillshot = (ImageButton) view.findViewById(R.id.stillshot);
         mRecordDuration = (TextView) view.findViewById(R.id.recordDuration);
         mButtonFacing = (ImageButton) view.findViewById(R.id.facing);
         mTextHold = (TextView) view.findViewById(R.id.texthold);
+        gallery = view.findViewById(R.id.gallery);
         if (mInterface.shouldHideCameraFacing() || CameraUtil.isChromium()) {
             mButtonFacing.setVisibility(View.GONE);
         } else {
@@ -125,12 +131,13 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
 
         mButtonFlash = (ImageButton) view.findViewById(R.id.flash);
         setupFlashMode();
+        ImageUtil.setImageHorizontalList(getActivity(), galleryLayout);
 
         if (mInterface.holdToRecord()) {
             mButtonVideo.setOnLongClickListener(this);
             mButtonVideo.setOnTouchListener(this);
-            mTextHold.setVisibility(View.VISIBLE);
-            mTextHold.setText(getString(R.string.mcam_hold));
+            mTextHold.setVisibility(View.GONE);
+            //mTextHold.setText(getString(R.string.mcam_hold));
         } else {
             mButtonVideo.setOnClickListener(this);
             mTextHold.setVisibility(View.GONE);
@@ -138,13 +145,15 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
         mButtonStillshot.setOnClickListener(this);
         mButtonFacing.setOnClickListener(this);
         mButtonFlash.setOnClickListener(this);
+        gallery.setOnClickListener(this);
 
         int primaryColor = getArguments().getInt(CameraIntentKey.PRIMARY_COLOR);
         if (CameraUtil.isColorDark(primaryColor)) {
             mIconTextColor = ContextCompat.getColor(getActivity(), R.color.mcam_color_light);
             primaryColor = CameraUtil.darkenColor(primaryColor);
         } else {
-            mIconTextColor = ContextCompat.getColor(getActivity(), R.color.mcam_color_dark);
+            mIconTextColor = ContextCompat.getColor(getActivity(), R.color.mcam_color_light);
+            primaryColor = getResources().getColor(android.R.color.transparent);
         }
         view.findViewById(R.id.controlsFrame).setBackgroundColor(primaryColor);
         mRecordDuration.setTextColor(mIconTextColor);
@@ -285,6 +294,8 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
     public abstract void openCamera();
 
     public abstract void closeCamera();
+
+    public abstract void openGallery();
 
     public void cleanup() {
         closeCamera();
@@ -460,6 +471,8 @@ abstract class BaseCameraFragment extends Fragment implements CameraUriInterface
             takeStillshot();
         } else if (id == R.id.flash) {
             invalidateFlash(true);
+        } else if (id == R.id.gallery) {
+            openGallery();
         }
     }
 

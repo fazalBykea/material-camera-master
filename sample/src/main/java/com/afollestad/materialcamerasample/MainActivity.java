@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .saveDir(saveDir)
                 .showPortraitWarning(true)
                 .allowRetry(true)
+                .forceCamera1()
                 .defaultToFrontFacing(true)
                 .allowRetry(true)
                 .autoSubmit(false)

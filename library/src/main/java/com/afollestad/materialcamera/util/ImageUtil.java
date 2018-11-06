@@ -1,18 +1,32 @@
 package com.afollestad.materialcamera.util;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Handler;
+import android.provider.MediaStore;
+import android.provider.SyncStateContract;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.afollestad.materialcamera.ICallback;
+import com.afollestad.materialcamera.R;
+import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.afollestad.materialcamera.util.Degrees.DEGREES_270;
 import static com.afollestad.materialcamera.util.Degrees.DEGREES_90;
@@ -21,6 +35,10 @@ import static com.afollestad.materialcamera.util.Degrees.DEGREES_90;
  * Created by tomiurankar on 06/03/16.
  */
 public class ImageUtil {
+    private static final String IMAGE_FILTER_IMPLICIT_INTENT = "image/*";
+    public static final String FILE_PROVIDER_TAG = ".fileprovider";
+    public static final int REQUEST_IMAGE_FROM_GALLERY = 1011;
+
     /**
      * Saves byte[] array to disk
      *
@@ -131,4 +149,87 @@ public class ImageUtil {
         }
         return 0;
     }
+
+    /**
+     * Getting All Images Path from Gallery using Content Providers
+     * {@link MediaStore.MediaColumns#DATA}
+     *
+     * @param activity an activity reference.
+     *
+     * @return the collection of image path from gallery.
+     */
+    public static ArrayList<String> getAllShownImagesPath(Activity activity) {
+        Uri uri;
+        Cursor cursor;
+        int column_index_data, column_index_folder_name;
+        ArrayList<String> listOfAllImages = new ArrayList<String>();
+        String absolutePathOfImage = null;
+        uri = android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+
+        String[] projection = { MediaStore.MediaColumns.DATA,
+                MediaStore.Images.Media.BUCKET_DISPLAY_NAME };
+
+        cursor = activity.getContentResolver().query(uri, projection, null,
+                null, null);
+
+        column_index_data = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
+        column_index_folder_name = cursor
+                .getColumnIndexOrThrow(MediaStore.Images.Media.BUCKET_DISPLAY_NAME);
+        while (cursor.moveToNext()) {
+            absolutePathOfImage = cursor.getString(column_index_data);
+
+            listOfAllImages.add(absolutePathOfImage);
+        }
+        return listOfAllImages;
+    }
+
+    /**
+     * Set Gallery Images in Horizontal View {@link ImageUtil#getAllShownImagesPath(Activity)}
+     *
+     * @see Glide#with(Activity)
+     *
+     * @param activity
+     * @param layout
+     */
+    public static void setImageHorizontalList(Activity activity, LinearLayout layout){
+        List<String> imagePathList = getAllShownImagesPath(activity);
+        for (int i = 0; i < imagePathList.size(); i++) {
+            ImageView imageView = new ImageView(activity);
+            imageView.setId(i);
+            imageView.setPadding(2, 2, 2, 2);
+            Glide.with(activity).load(imagePathList.get(i)).into(imageView);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            layout.addView(imageView);
+            imageView.getLayoutParams().width = (int) activity.getResources().
+                    getDimension(R.dimen.gallery_layout_width);
+            imageView.getLayoutParams().height = (int) activity.getResources().
+                    getDimension(R.dimen.gallery_layout_height);
+        }
+    }
+
+    /**
+     * Initiate image gallery intent for the system.
+     *
+     * @param activity an activity reference.
+     * @param file an output file object.
+     *
+     */
+    public static void openGalleryIntent(Activity activity, File file) {
+        Intent galleryIntent = new Intent();
+        galleryIntent.setType(IMAGE_FILTER_IMPLICIT_INTENT);
+        galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+        galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        galleryIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        galleryIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        galleryIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+                FileProvider.getUriForFile(activity,
+                        activity.getApplicationContext().getPackageName()
+                                + FILE_PROVIDER_TAG, file
+                        ));
+        if (galleryIntent.resolveActivity(activity.getPackageManager()) != null) {
+            activity.startActivityForResult(galleryIntent, REQUEST_IMAGE_FROM_GALLERY);
+        }
+    }
+
+
 }

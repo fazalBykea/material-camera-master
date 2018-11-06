@@ -503,13 +503,13 @@ public abstract class BaseCaptureActivity extends AppCompatActivity implements B
     @DrawableRes
     @Override
     public int iconRearCamera() {
-        return getIntent().getIntExtra(CameraIntentKey.ICON_REAR_CAMERA, R.drawable.mcam_camera_rear);
+        return getIntent().getIntExtra(CameraIntentKey.ICON_REAR_CAMERA, R.drawable.camera);
     }
 
     @DrawableRes
     @Override
     public int iconFrontCamera() {
-        return getIntent().getIntExtra(CameraIntentKey.ICON_FRONT_CAMERA, R.drawable.mcam_camera_front);
+        return getIntent().getIntExtra(CameraIntentKey.ICON_FRONT_CAMERA, R.drawable.camera);
     }
 
     @DrawableRes
@@ -546,7 +546,7 @@ public abstract class BaseCaptureActivity extends AppCompatActivity implements B
     @DrawableRes
     @Override
     public int iconStillshot() {
-        return getIntent().getIntExtra(CameraIntentKey.ICON_STILL_SHOT, R.drawable.mcam_action_stillshot);
+        return getIntent().getIntExtra(CameraIntentKey.ICON_STILL_SHOT, R.drawable.camera_stillshot_capture);
     }
 
     @Override

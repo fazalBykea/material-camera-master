@@ -255,6 +255,11 @@ public class CameraFragment extends BaseCameraFragment implements View.OnClickLi
         }
     }
 
+    @Override
+    public void openGallery() {
+        ImageUtil.openGalleryIntent(getActivity(), getOutputPictureFile());
+    }
+
     private Camera.Size getHighestSupportedStillShotSize(List<Camera.Size> supportedPictureSizes) {
         Collections.sort(supportedPictureSizes, new Comparator<Camera.Size>() {
             @Override

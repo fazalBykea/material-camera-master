@@ -1,12 +1,9 @@
 buildscript {
     repositories {
-        jcenter {
-            url "http://jcenter.bintray.com/"
-        }
+        google()
+        jcenter()
 
-        maven {
-            url 'https://maven.google.com'
-        }
+
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.1'
@@ -16,10 +13,28 @@ buildscript {
 
 allprojects {
     repositories {
+        google()
         jcenter()
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+subprojects {
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex') ) {
+                details.useVersion "25.2.0"
+            }
+        }
+    }
+}
+
+ext {
+    lib = [
+            glide           :"com.github.bumptech.glide:glide:4.8.0",
+            glideAnotation  :"com.github.bumptech.glide:compiler:4.8.0"
+    ]
 }

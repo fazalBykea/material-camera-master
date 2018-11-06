@@ -39,15 +39,19 @@ android {
     }
 }
 
+
+
 repositories {
     jcenter()
     maven { url "https://dl.bintray.com/drummer-aidan/maven" }
+
 }
 
 dependencies {
     //noinspection GradleCompatible
-    compile "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
-    compile "com.afollestad:easyvideoplayer:$VIDEO_PLAYER_VERSION"
-    compile "com.afollestad.material-dialogs:core:$MD_VERSION"
+    implementation "com.android.support:appcompat-v7:$SUPPORT_LIB_VERSION"
+    implementation "com.afollestad:easyvideoplayer:$VIDEO_PLAYER_VERSION"
+    implementation "com.afollestad.material-dialogs:core:$MD_VERSION"
+    implementation lib.glide
 }
 
